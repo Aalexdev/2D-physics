@@ -1,3 +1,4 @@
+
 // libs
 #include <SDL2/SDL.h>
 
@@ -5,11 +6,12 @@
 #include <cstdlib>
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <memory>
 
 static constexpr float minExecutionTime = 16;
 
 int main(int argc, char **argv){
-
 	std::cout << "version : " << VERSION << std::endl;
 
 	SDL_Window *window;
@@ -38,13 +40,13 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	// the main loop
 
+	// the main loop
 	auto start = std::chrono::high_resolution_clock::now();
+	float dt = 0;
 
 	bool launched = true;
 	while (launched){
-		
 		start = std::chrono::high_resolution_clock::now();
 
 		// events
@@ -60,16 +62,22 @@ int main(int argc, char **argv){
 			}
 		}
 
+		// update
+
+		
+
 		// rendering
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
+
 
 		SDL_RenderPresent(renderer);
 
 		// fps limiter
 		float execTime = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - start).count();
-
 		float waitTime = execTime > minExecutionTime ? minExecutionTime : execTime;
 		SDL_Delay(minExecutionTime - waitTime);
+		dt = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - start).count();
 	}
 
 	// clear
