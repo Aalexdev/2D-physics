@@ -1,3 +1,4 @@
+#include "physics2D/rigidBody/IntersectionDetector2D.hpp"
 
 // libs
 #include <SDL2/SDL.h>
