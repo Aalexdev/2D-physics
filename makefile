@@ -18,7 +18,7 @@ EXEC = prog
 
 # source files
 SRCS = $(wildcard **/*.cpp) $(wildcard $(SRC)/**/*.cpp)
-OBJS := $(patsubst %.cpp, $(OBJ)/%.o, $(notdir $(SRCS)))
+OBJS = $(patsubst %.cpp, $(OBJ)/%.o, $(notdir $(SRCS))) $(SDL2_GFX_OBJS)
 
 all: $(EXEC)
 
@@ -46,6 +46,7 @@ $(OBJ)/%.o : $(SRC)/*/%.cpp
 
 $(OBJ)/%.o : $(SRC)/*/*/%.cpp
 	$(CXX) -std=$(STD_VERSION) -o $@ -c $< -I $(INCLUDE) $(DEFINES) $(CFLAGS)
+
 
 info:
 	@echo -----------------------------------------------------
