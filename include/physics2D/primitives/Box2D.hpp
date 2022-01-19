@@ -6,9 +6,9 @@
 
 // std
 #include <vector>
+#include <limits>
 
 #include "physics2D/rigidBody/RigidBody.hpp"
-#include "physics2D/constants.hpp"
 #include "physics2D/util/math.hpp"
 
 namespace physics2D::primitives{
@@ -50,7 +50,7 @@ namespace physics2D::primitives{
 				vertices[2] = {max.x, min.y};
 				vertices[3] = max;
 
-				if (glm::epsilonNotEqual(rigidBody.getRotation(), 0.f, precision::EPSILON)){
+				if (glm::epsilonNotEqual(rigidBody.getRotation(), 0.f, std::numeric_limits<float>::min())){
 					for (glm::vec2 &vert : vertices){
 						math::rotate2D(vert, rigidBody.getRotation(), rigidBody.getPosition());
 					}
