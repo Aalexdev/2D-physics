@@ -165,7 +165,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 	 * @return true 
 	 * @return false 
 	 */
-	static bool rayCast(primitives::Circle circle, primitives::Ray ray, primitives::RaycastResult *result = nullptr){
+	static inline bool rayCast(primitives::Circle circle, primitives::Ray ray, primitives::RaycastResult *result = nullptr){
 		if (result) primitives::RaycastResult::reset(*result);
 
 		glm::vec2 originToCircle = circle.getCenter() - ray.getOrigin();
@@ -205,7 +205,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 	 * @return true 
 	 * @return false 
 	 */
-	static bool rayCast(primitives::AABB box,  primitives::Ray ray, primitives::RaycastResult *result = nullptr){
+	static inline bool rayCast(primitives::AABB box,  primitives::Ray ray, primitives::RaycastResult *result = nullptr){
 		if (result) result->reset();
 		glm::vec2 unitVec = ray.getDirection();
 
@@ -243,7 +243,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 	 * @return true 
 	 * @return false 
 	 */
-	static bool rayCast(primitives::Box2D box,  primitives::Ray ray, primitives::RaycastResult *result = nullptr){
+	static inline bool rayCast(primitives::Box2D box,  primitives::Ray ray, primitives::RaycastResult *result = nullptr){
 		if (result) result->reset();
 		
 		glm::vec2 size = box.getHalfSize();
@@ -389,4 +389,177 @@ namespace physics2D::rigidBody::intersectionDetector{
 	static inline bool CircleVsBox2d(primitives::Circle circle, primitives::Box2D box){
 		return Box2DVsCircle(box, circle);
 	}
+
+	/**
+	 * @brief Get the Interval object
+	 * 
+	 * @param rectangle 
+	 * @param axis 
+	 * @return glm::vec2 
+	 */
+	static inline glm::vec2 getInterval(primitives::AABB rectangle, glm::vec2 axis){
+		glm::vec2 result = glm::vec2(0.f);
+
+		glm::vec2 min = rectangle.getMin();
+		glm::vec2 max = rectangle.getMax();
+
+		glm::vec2 vertices[] = {
+			glm::vec2(min),
+			glm::vec2(min.x, max.y),
+			glm::vec2(max),
+			glm::vec2(max.x, min.y)
+		};
+
+		result.x = glm::dot(axis, vertices[0]);
+		result.y = result.x;
+
+		for (int i=0; i<4; i++){
+			float projection = glm::dot(axis, vertices[i]);
+
+			if (projection < result.x){
+				result.x = projection;
+			}
+
+			if (projection > result.y){
+				result.y = projection;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * @brief Get the Interval object
+	 * 
+	 * @param rectangle 
+	 * @param axis 
+	 * @return glm::vec2 
+	 */
+	static inline glm::vec2 getInterval(primitives::Box2D rectangle, glm::vec2 axis){
+		glm::vec2 result = glm::vec2(0.f);
+
+		glm::vec2 min = rectangle.getMin();
+		glm::vec2 max = rectangle.getMax();
+
+		std::vector<glm::vec2> vertices = rectangle.getVertices();
+
+		result.x = glm::dot(axis, vertices[0]);
+		result.y = result.x;
+
+		for (int i=0; i<4; i++){
+			float projection = glm::dot(axis, vertices[i]);
+
+			if (projection < result.x){
+				result.x = projection;
+			}
+
+			if (projection > result.y){
+				result.y = projection;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool overlapOnAxis(primitives::AABB b1, primitives::AABB b2, glm::vec2 axis){
+		glm::vec2 interval1 = getInterval(b1, axis);
+		glm::vec2 interval2 = getInterval(b2, axis);
+
+		return ((interval2.x <= interval1.y) && (interval1.x <= interval2.y));
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool overlapOnAxis(primitives::AABB b1, primitives::Box2D b2, glm::vec2 axis){
+		glm::vec2 interval1 = getInterval(b1, axis);
+		glm::vec2 interval2 = getInterval(b2, axis);
+
+		return ((interval2.x <= interval1.y) && (interval1.x <= interval2.y));
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool overlapOnAxis(primitives::Box2D b1, primitives::Box2D b2, glm::vec2 axis){
+		glm::vec2 interval1 = getInterval(b1, axis);
+		glm::vec2 interval2 = getInterval(b2, axis);
+
+		return ((interval2.x <= interval1.y) && (interval1.x <= interval2.y));
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool AABBVsAABB(primitives::AABB b1, primitives::AABB b2){
+		glm::vec2 axesToTest[] = {glm::vec2(0.f, 1.f), glm::vec2(1.f, 0.f)};
+
+		for (int i=0; i<2; i++){
+			if (!overlapOnAxis(b1, b2, axesToTest[i])) return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool AABBVsBox2D(primitives::AABB b1, primitives::Box2D b2){
+		glm::vec2 axesToTest[] = {
+			glm::vec2(0.f, 1.f),
+			glm::vec2(1.f, 0.f),
+			glm::vec2(0.f, 1.f),
+			glm::vec2(1.f, 0.f)
+		};
+
+		math::rotate2D(axesToTest[2], b2.getRotation(), glm::vec2(0.f));
+		math::rotate2D(axesToTest[3], b2.getRotation(), glm::vec2(0.f));
+
+		for (int i=0; i<4; i++){
+			if (!overlapOnAxis(b1, b2, axesToTest[i])) return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @brief 
+	 * 
+	 * @param b1 
+	 * @param b2 
+	 * @return true 
+	 * @return false 
+	 */
+	static inline bool Box2dDVsAABB(primitives::Box2D b1, primitives::AABB b2){
+		return AABBVsBox2D(b2, b1);
+	}
+
 }
