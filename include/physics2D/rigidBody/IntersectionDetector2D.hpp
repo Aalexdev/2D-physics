@@ -66,8 +66,8 @@ namespace physics2D::rigidBody::intersectionDetector{
 	static inline bool pointInBox2D(glm::vec2 point, primitives::Box2D box){
 		math::rotate2D(point, -box.getRotation(), box.getPosition());
 
-		glm::vec2 min = box.getMin();
-		glm::vec2 max = box.getMax();
+		glm::vec2 min = box.getLocalMin();
+		glm::vec2 max = box.getLocalMax();
 
 		if (point.x <= min.x || point.x >= max.x) return false;
 		if (point.y <= min.y || point.y >= max.y) return false;
@@ -151,7 +151,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 		math::rotate2D(end, -box.getRotation(), box.getPosition());
 
 		primitives::Line2D line2D(start, end);
-		primitives::AABB aabb(box.getMin(), box.getMax());
+		primitives::AABB aabb(box.getLocalMin(), box.getLocalMax());
 
 		return LineVsAABB(line2D, aabb);
 	}
@@ -243,7 +243,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 	 * @return true 
 	 * @return false 
 	 */
-	static inline bool rayCast(primitives::Box2D box,  primitives::Ray ray, primitives::RaycastResult *result = nullptr){
+	static inline bool rayCast(primitives::Box2D box, primitives::Ray ray, primitives::RaycastResult *result = nullptr){
 		if (result) result->reset();
 		
 		glm::vec2 size = box.getHalfSize();
@@ -266,7 +266,7 @@ namespace physics2D::rigidBody::intersectionDetector{
 			
 				f[i] = std::numeric_limits<float>::min();
 			}
-			tArr[i*2] =   e[i] + size[i] / f[i];
+			tArr[i*2] = e[i] + size[i] / f[i];
 			tArr[i*2+1] = e[i] - size[i] / f[i];
 		}
 
@@ -438,9 +438,6 @@ namespace physics2D::rigidBody::intersectionDetector{
 	static inline glm::vec2 getInterval(primitives::Box2D rectangle, glm::vec2 axis){
 		glm::vec2 result = glm::vec2(0.f);
 
-		glm::vec2 min = rectangle.getMin();
-		glm::vec2 max = rectangle.getMax();
-
 		std::vector<glm::vec2> vertices = rectangle.getVertices();
 
 		result.x = glm::dot(axis, vertices[0]);
@@ -561,5 +558,4 @@ namespace physics2D::rigidBody::intersectionDetector{
 	static inline bool Box2dDVsAABB(primitives::Box2D b1, primitives::AABB b2){
 		return AABBVsBox2D(b2, b1);
 	}
-
 }

@@ -20,20 +20,20 @@ namespace physics2D::primitives{
 				if (glm::dot(min, min) > glm::dot(max, max)) std::swap(min, max);
 
 				size = max - min;
-				halfSize = size / 2.f;
+				updateHalfSize();
 			}
 
 			/**
 			 * @brief get the minimal coordonates of the Box2D object
 			 * @return glm::vec2 
 			 */
-			glm::vec2 getMin() const noexcept {return rigidBody.getPosition() - halfSize;}
+			glm::vec2 getLocalMin() const noexcept {return rigidBody->getPosition() - halfSize;}
 
 			/**
 			 * @brief get the maximal coordonates of the Box2D object
 			 * @return glm::vec2 
 			 */
-			glm::vec2 getMax() const noexcept {return rigidBody.getPosition() + halfSize;}
+			glm::vec2 getLocalMax() const noexcept {return rigidBody->getPosition() + halfSize;}
 
 			/**
 			 * @brief get the vertices of the box
@@ -42,17 +42,17 @@ namespace physics2D::primitives{
 			std::vector<glm::vec2> getVertices() const{
 				std::vector<glm::vec2> vertices(4);
 
-				glm::vec2 min = getMin();
-				glm::vec2 max = getMax();
+				glm::vec2 min = getLocalMin();
+				glm::vec2 max = getLocalMax();
 
 				vertices[0] = min;
 				vertices[1] = {min.x, max.y};
 				vertices[2] = {max.x, min.y};
 				vertices[3] = max;
 
-				if (glm::epsilonNotEqual(rigidBody.getRotation(), 0.f, std::numeric_limits<float>::min())){
+				if (glm::epsilonNotEqual(rigidBody->getRotation(), 0.f, std::numeric_limits<float>::min())){
 					for (glm::vec2 &vert : vertices){
-						math::rotate2D(vert, rigidBody.getRotation(), rigidBody.getPosition());
+						math::rotate2D(vert, rigidBody->getRotation(), rigidBody->getPosition());
 					}
 				}
 
@@ -63,13 +63,13 @@ namespace physics2D::primitives{
 			 * @brief get the rotation of the box
 			 * @return float 
 			 */
-			float getRotation() const noexcept {return rigidBody.getRotation();}
+			float getRotation() const noexcept {return rigidBody->getRotation();}
 
 			/**
 			 * @brief get the position of the box
 			 * @return glm::vec2 
 			 */
-			glm::vec2 getPosition() const noexcept {return rigidBody.getPosition();}
+			glm::vec2 getPosition() const noexcept {return rigidBody->getPosition();}
 
 			/**
 			 * @brief get the size of the box
@@ -83,9 +83,22 @@ namespace physics2D::primitives{
 			 */
 			glm::vec2 getHalfSize() const noexcept {return halfSize;}
 
+			void setRigidBody(rigidBody::RigidBody *rigidBody) noexcept {
+				this->rigidBody = rigidBody;
+			}
+
+			void setSize(glm::vec2 size){
+				this->size = size;
+				updateHalfSize();
+			}
+
 		private:
+			void updateHalfSize(){
+				halfSize = size/2.f;
+			}
+
 			glm::vec2 size = glm::vec2(0.f);
 			glm::vec2 halfSize;
-			rigidBody::RigidBody rigidBody;
+			rigidBody::RigidBody *rigidBody;
 	};
 }

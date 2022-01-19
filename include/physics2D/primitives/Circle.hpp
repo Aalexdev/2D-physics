@@ -24,10 +24,13 @@ namespace physics2D::primitives{
 			 * @brief get the center of the circle
 			 * @return glm::vec2 
 			 */
-			glm::vec2 getCenter() const noexcept {return rigidBody.getPosition();}
+			glm::vec2 getCenter() const noexcept {return rigidBody->getPosition();}
+			void setRigidBody(rigidBody::RigidBody *rigidBody) noexcept {
+				this->rigidBody = rigidBody;
+			}
 		
 		private:
 			float radius;
-			rigidBody::RigidBody rigidBody;
+			rigidBody::RigidBody *rigidBody;
 	};
 }

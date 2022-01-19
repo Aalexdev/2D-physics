@@ -4,7 +4,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-namespace math{
+namespace physics2D::math{
 	/**
 	 * @brief rotate the given vector around the origin
 	 * 

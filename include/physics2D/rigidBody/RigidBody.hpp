@@ -13,12 +13,6 @@ namespace physics2D::rigidBody{
 			RigidBody();
 
 			/**
-			 * @brief set the position of the rigidBody
-			 * @param newPos 
-			 */
-			void setPosition(glm::vec2 newPos) noexcept {position = newPos;}
-
-			/**
 			 * @brief get the position of the rigidBody
 			 * @return glm::vec2 
 			 */
@@ -31,13 +25,33 @@ namespace physics2D::rigidBody{
 			float getRotation() const noexcept {return rotation;}
 
 			/**
-			 * @brief set the rotation of the rigidBody
-			 * @param newRotation 
+			 * @brief set the rigidBody attributes
+			 * 
+			 * @param position 
+			 * @param angle 
 			 */
-			void setRotation(float newRotation) {rotation = newRotation;}
+			void setTransform(glm::vec2 position, float rotation){
+				this->position = position;
+				this->rotation = rotation;
+			}
+			
+			void setTransform(glm::vec2 position){
+				this->position = position;
+			}
+
+			void setTransform(float rotation){
+				this->rotation = rotation;
+			}
 
 		private:
 			glm::vec2 position = glm::vec2(0.f);
+			glm::vec2 linearVelocity = glm::vec2(0.f);
+
+			float angularVelocity = 0.f;
+			float linearDamping = 0.f;
+			float angularDamping = 0.f;
 			float rotation = 0.f;
+
+			bool fixedRotation = false;
 	};
 }

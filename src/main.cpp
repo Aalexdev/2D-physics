@@ -64,8 +64,7 @@ int main(int argc, char **argv){
 		}
 
 		// update
-
-
+		
 
 		// rendering
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
