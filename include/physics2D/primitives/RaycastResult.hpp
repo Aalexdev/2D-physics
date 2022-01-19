@@ -7,13 +7,16 @@ namespace physics2D::primitives{
 	class RaycastResult{
 		public:
 			RaycastResult() {}
-			RaycastResult(glm::vec2 point, glm::vec2 normal, float t, bool hit) : init(point, normal, t, hit) {}
 
 			void init(glm::vec2 point, glm::vec2 normal, float t, bool hit){
 				this->point = point;
 				this->normal = normal;
 				this->t = t;
 				this->hit = hit;
+			}
+
+			RaycastResult(glm::vec2 point, glm::vec2 normal, float t, bool hit){
+				init(point, normal, t, hit);
 			}
 
 			/**
@@ -31,6 +34,11 @@ namespace physics2D::primitives{
 			static void reset(RaycastResult &result) noexcept{
 				result.init(glm::vec2(0.f), glm::vec2(0.f), -1.f, false);
 			}
+
+			/**
+			 * @brief reset the raycastResult
+			 */
+			void reset() noexcept {reset(*this);}
 
 		private:
 			glm::vec2 point = glm::vec2(0.f);

@@ -9,7 +9,7 @@
 
 #include "physics2D/rigidBody/RigidBody.hpp"
 #include "physics2D/constants.hpp"
-#include "util/math.hpp"
+#include "physics2D/util/math.hpp"
 
 namespace physics2D::primitives{
 	class Box2D{
@@ -70,6 +70,18 @@ namespace physics2D::primitives{
 			 * @return glm::vec2 
 			 */
 			glm::vec2 getPosition() const noexcept {return rigidBody.getPosition();}
+
+			/**
+			 * @brief get the size of the box
+			 * @return glm::vec2 
+			 */
+			glm::vec2 getSize() const noexcept {return size;}
+
+			/**
+			 * @brief get the size of the box divided by two
+			 * @return glm::vec2 
+			 */
+			glm::vec2 getHalfSize() const noexcept {return halfSize;}
 
 		private:
 			glm::vec2 size = glm::vec2(0.f);
