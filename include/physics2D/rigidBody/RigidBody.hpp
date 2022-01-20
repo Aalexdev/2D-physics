@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Transform.hpp"
+#include "components/Transform.hpp"
 
 // libs
 #include <glm/glm.hpp>
+
+// std
+#include <iostream>
 
 /**
  * @brief could be used as a component in a entity components system
@@ -69,12 +72,12 @@ namespace physics2D::rigidBody{
 
 			void syncCollisionsTransforms(){
 				if (transform){
-					transform->position = position;
-					transform->rotation = rotation;
+					transform->setPosition(position);
+					transform->setRotation(rotation);
 				}
 			}
 
-			void setTransform(Transform *t){
+			void setTransform(components::Transform *t){
 				transform = t;
 			}
 
@@ -95,6 +98,6 @@ namespace physics2D::rigidBody{
 			float invertMass = 0.f;
 
 			bool fixedRotation = false;
-			Transform *transform = nullptr;
+			components::Transform *transform = nullptr;
 	};
 }

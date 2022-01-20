@@ -3,6 +3,7 @@
 #include "physics2D/forces/ForceRegistery.hpp"
 #include "physics2D/rigidBody/RigidBody.hpp"
 #include "physics2D/forces/Gravity2D.hpp"
+#include "ECS.hpp"
 
 // libs
 #include <glm/glm.hpp>
@@ -12,9 +13,9 @@
 #include <memory>
 
 namespace physics2D{
-	class PhysicsSystem{
+	class PhysicsSystem : public ECS::System{
 		public:
-			PhysicsSystem(float fixedUpdateDt) : fixedUpdateDt{fixedUpdateDt}{
+			PhysicsSystem(float fixedUpdateDt, ECS::Coordinator &coordinator) : fixedUpdateDt{fixedUpdateDt}, coordinator{coordinator}{
 
 			}
 
@@ -25,21 +26,21 @@ namespace physics2D{
 			void fixedUpdate(){
 				forceRegistery.updateForces(fixedUpdateDt);
 
-				for (rigidBody::RigidBody& body : rigidBodies){
-					body.physicsUpdate(fixedUpdateDt);
+				for (auto entity : mEntities){
+					coordinator.GetComponent<rigidBody::RigidBody>(entity).physicsUpdate(fixedUpdateDt);
 				}
 			}
 
-			void addRigidBody(rigidBody::RigidBody body){
-				rigidBodies.push_back(body);
-				forceRegistery.add(rigidBodies.back(), gravity);
+			void addEntity(ECS::Entity entity){
+				forceRegistery.add(coordinator.GetComponent<rigidBody::RigidBody>(entity), gravity);
+				coordinator.GetComponent<rigidBody::RigidBody>(entity).setTransform(&coordinator.GetComponent<components::Transform>(entity));
 			}
 
 		private:
-			forces::ForceRegistery forceRegistery;
-			std::list<rigidBody::RigidBody> rigidBodies;
-
-			forces::Gravity2D gravity;
+			ECS::Coordinator &coordinator;
 			float fixedUpdateDt;
+
+			forces::ForceRegistery forceRegistery;
+			forces::Gravity2D gravity;
 	};
 }

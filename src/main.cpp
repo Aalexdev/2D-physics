@@ -1,4 +1,6 @@
 #include "physics2D/PhysicsSystem2D.hpp"
+#include "physics2D/primitives/Collider2D.hpp"
+#include "ECS.hpp"
 
 // libs
 #include <SDL2/SDL.h>
@@ -42,8 +44,19 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	std::vector<Transform> transforms;
-	physics2D::PhysicsSystem physicsSystem(0.16);
+	// ECS
+	ECS::Coordinator coordinator;
+	coordinator.RegisterComponent<components::Transform>();
+	coordinator.RegisterComponent<physics2D::rigidBody::RigidBody>();
+	coordinator.RegisterComponent<physics2D::primitives::Collider2D>();
+
+	auto physicsSystem = coordinator.RegisterSystem<physics2D::PhysicsSystem>(0.16, coordinator);
+	ECS::Signature signature;
+	signature.set(coordinator.GetComponentType<components::Transform>());
+	signature.set(coordinator.GetComponentType<physics2D::rigidBody::RigidBody>());
+	coordinator.SetSystemSignature<physics2D::PhysicsSystem>(signature);
+	
+	std::vector<components::Transform*> transforms;
 
 	// the main loop
 	auto start = std::chrono::high_resolution_clock::now();
@@ -65,12 +78,16 @@ int main(int argc, char **argv){
 				case SDL_MOUSEBUTTONDOWN:
 					switch (e.button.button){
 						case SDL_BUTTON_LEFT:
-							physics2D::rigidBody::RigidBody body;
-							body.setMass(rand() % 1000 / 1000.f * 5 + 5);
-							body.setTransform(mousePos);
-							transforms.push_back({});
-							body.setTransform(&transforms.back());
-							physicsSystem.addRigidBody(body);
+							ECS::Entity e = coordinator.CreateEntity();
+
+							physics2D::rigidBody::RigidBody b;
+							b.setMass(2.f);
+							b.setTransform(mousePos);
+
+							coordinator.AddComponent<components::Transform>(e);
+							coordinator.AddComponent<physics2D::rigidBody::RigidBody>(e, b);
+							transforms.push_back(&coordinator.GetComponent<components::Transform>(e));
+							physicsSystem->addEntity(e);
 							break;
 					}
 					break;
@@ -87,10 +104,10 @@ int main(int argc, char **argv){
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		physicsSystem.update(dt);
+		physicsSystem->update(dt);
 
 		for (auto &t : transforms){
-			circleRGBA(renderer, t.position.x, t.position.y, 30, 255, 0, 0, 255);
+			circleRGBA(renderer, t->getPosition().x, t->getPosition().y, 30, 255, 0, 0, 255);
 		}
 
 		SDL_RenderPresent(renderer);
