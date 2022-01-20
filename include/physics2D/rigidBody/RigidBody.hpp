@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/Transform.hpp"
+#include "physics2D/primitives/Collider2D.hpp"
 
 // libs
 #include <glm/glm.hpp>
@@ -85,6 +86,11 @@ namespace physics2D::rigidBody{
 				forces += force;
 			}
 
+			bool hasInfinitMass() const noexcept {return mass == 0.f;}
+
+			void setCollider(primitives::Collider2D *collider) {this->collider = collider;}
+			primitives::Collider2D *getCollider() const noexcept {return collider;}
+
 		private:
 			glm::vec2 position = glm::vec2(0.f);
 			glm::vec2 linearVelocity = glm::vec2(0.f);
@@ -99,5 +105,6 @@ namespace physics2D::rigidBody{
 
 			bool fixedRotation = false;
 			components::Transform *transform = nullptr;
+			primitives::Collider2D *collider = nullptr;
 	};
 }

@@ -15,6 +15,10 @@
 
 static constexpr float minExecutionTime = 16;
 
+void function(){
+
+}
+
 int main(int argc, char **argv){
 	std::cout << "version : " << VERSION << std::endl;
 
