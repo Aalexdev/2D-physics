@@ -4,7 +4,7 @@
 
 // std
 #include <list>
-#include <memory>
+#include <iostream>
 
 namespace physics2D::forces{
 	class ForceRegistery{
@@ -30,9 +30,9 @@ namespace physics2D::forces{
 			}
 
 			void zeroForces(){
-				for (ForceRegistration &fr : registery){
-					// fr.getBody().zeroForces();
-				}
+				// for (ForceRegistration &fr : registery){
+				// 	// fr.getBody().zeroForces();
+				// }
 			}
 
 		private:

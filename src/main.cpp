@@ -1,7 +1,8 @@
-#include "physics2D/rigidBody/IntersectionDetector2D.hpp"
+#include "physics2D/PhysicsSystem2D.hpp"
 
 // libs
 #include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 // std
 #include <cstdlib>
@@ -41,10 +42,13 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
+	std::vector<Transform> transforms;
+	physics2D::PhysicsSystem physicsSystem(0.16);
 
 	// the main loop
 	auto start = std::chrono::high_resolution_clock::now();
 	float dt = 0;
+	glm::vec2 mousePos;
 
 	bool launched = true;
 	while (launched){
@@ -58,18 +62,36 @@ int main(int argc, char **argv){
 					launched = false;
 					break;
 				
+				case SDL_MOUSEBUTTONDOWN:
+					switch (e.button.button){
+						case SDL_BUTTON_LEFT:
+							physics2D::rigidBody::RigidBody body;
+							body.setMass(rand() % 1000 / 1000.f * 5 + 5);
+							body.setTransform(mousePos);
+							transforms.push_back({});
+							body.setTransform(&transforms.back());
+							physicsSystem.addRigidBody(body);
+							break;
+					}
+					break;
+				
+				case SDL_MOUSEMOTION:
+					mousePos = glm::vec2(e.motion.x, e.motion.y);
+				
 				default:
 					break;
 			}
 		}
 
-		// update
-		
-
 		// rendering
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
+		physicsSystem.update(dt);
+
+		for (auto &t : transforms){
+			circleRGBA(renderer, t.position.x, t.position.y, 30, 255, 0, 0, 255);
+		}
 
 		SDL_RenderPresent(renderer);
 

@@ -8,7 +8,7 @@ namespace physics2D::forces{
 		public:
 			ForceRegistration(ForceGenerator &fg, rigidBody::RigidBody &body) : fg{fg}, body{body}{}
 
-			bool operator==(ForceRegistration &other) const noexcept {
+			bool operator==(const ForceRegistration &other) const noexcept {
 				return &other.body == &this->body && &other.fg == &this->fg;
 			}
 

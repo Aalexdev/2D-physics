@@ -7,6 +7,6 @@ namespace physics2D::forces{
 		public:
 			ForceGenerator(){};
 
-			virtual void updateForce(rigidBody::RigidBody &body, float dt);
+			virtual void updateForce(rigidBody::RigidBody &body, float dt) {}
 	};
 }
