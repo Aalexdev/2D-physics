@@ -11,6 +11,7 @@
 
 // std
 #include <stdexcept>
+#include <iostream>
 
 /**
  * @brief box2D collisions by https://github.com/erincatto from https://github.com/erincatto/box2d-lite
@@ -169,15 +170,15 @@ namespace physics2D::rigidBody::collisions{
 	}
 
 	// The normal points from A to B
-	static int Collide(std::vector<rigidBody::CollisionsManifold> contacts, primitives::Box2D* bodyA, primitives::Box2D* bodyB){
+	static CollisionsManifold findCollisionsFeatures(primitives::Box2D &bodyA, primitives::Box2D &bodyB){
 		// Setup
-		glm::vec2 hA = 0.5f * glm::vec2(bodyA->getHalfSize().x);
-		glm::vec2 hB = 0.5f * glm::vec2(bodyB->getHalfSize().x);
+		glm::vec2 hA = 0.5f * glm::vec2(bodyA.getHalfSize().x);
+		glm::vec2 hB = 0.5f * glm::vec2(bodyB.getHalfSize().x);
 
-		glm::vec2 posA = bodyA->getPosition();
-		glm::vec2 posB = bodyB->getPosition();
+		glm::vec2 posA = bodyA.getPosition();
+		glm::vec2 posB = bodyB.getPosition();
 
-		glm::mat2 RotA(bodyA->getRotation()), RotB(bodyB->getRotation());
+		glm::mat2 RotA(bodyA.getRotation()), RotB(bodyB.getRotation());
 
 		glm::mat2 RotAT = glm::transpose(RotA);
 		glm::mat2 RotBT = glm::transpose(RotB);
@@ -193,12 +194,12 @@ namespace physics2D::rigidBody::collisions{
 		// Box A faces
 		glm::vec2 faceA = glm::abs(dA) - hA - absC * hB;
 		if (faceA.x > 0.0f || faceA.y > 0.0f)
-			return 0;
+			return CollisionsManifold();
 
 		// Box B faces
 		glm::vec2 faceB = glm::abs(dB) - absCT * hA - hB;
 		if (faceB.x > 0.0f || faceB.y > 0.0f)
-			return 0;
+			return CollisionsManifold();
 
 		// Find best axis
 		Axis axis;
@@ -307,43 +308,43 @@ namespace physics2D::rigidBody::collisions{
 		np = ClipSegmentToLine(clipPoints1, incidentEdge, -sideNormal, negSide, negEdge);
 
 		if (np < 2)
-			return 0;
+			return CollisionsManifold();
 
 		// Clip to negative box side 1
 		np = ClipSegmentToLine(clipPoints2, clipPoints1,  sideNormal, posSide, posEdge);
 
 		if (np < 2)
-			return 0;
+			return CollisionsManifold();
 
 		// Now clipPoints2 contains the clipping points.
 		// Due to roundoff, it is possible that clipping removes all points.
+
+        CollisionsManifold result;
+        result.setDeth(separation);
+        result.setNormal(normal);
+        result.setColliding(true);
 
 		int numContacts = 0;
 		for (int i = 0; i < 2; ++i){
 			float separation = glm::dot(frontNormal, clipPoints2[i].v) - front;
 
 			if (separation <= 0){
-
-				contacts[numContacts].setDeth(separation);
-				contacts[numContacts].setNormal(normal);
-				// slide contact point onto reference face (easy to cull)
-				contacts[numContacts].getContactPoints().push_back(clipPoints2[i].v - separation * frontNormal);
-				contacts[numContacts].setColliding(true);
-
-				// contacts[numContacts].feature = clipPoints2[i].fp;
-				// if (axis == FACE_B_X || axis == FACE_B_Y)
-					// Flip(contacts[numContacts].feature);
-				++numContacts;
+				result.getContactPoints().push_back(clipPoints2[i].v - separation * frontNormal);
 			}
 		}
 
-		return numContacts;
+		return result;
 	}
 
     static CollisionsManifold findCollisionsFeatures(primitives::Collider2D *a, primitives::Collider2D *b){
         if (primitives::Circle *c1 = dynamic_cast<primitives::Circle*>(a)){
 			if (primitives::Circle *c2 = dynamic_cast<primitives::Circle*>(b))
 				return findCollisionsFeatures(*c1, *c2);
+        
+        
+        } else if (primitives::Box2D *b1 = dynamic_cast<primitives::Box2D*>(a)){
+            if (primitives::Box2D *b2 = dynamic_cast<primitives::Box2D*>(b))
+                return findCollisionsFeatures(*b1, *b2);
 
 		} else {
 			throw std::logic_error("unknown collider");

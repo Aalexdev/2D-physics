@@ -1,5 +1,6 @@
 #include "physics2D/PhysicsSystem2D.hpp"
 #include "physics2D/primitives/Collider2D.hpp"
+#include "physics2D/rigidBody/IntersectionDetector2D.hpp"
 #include "ECS.hpp"
 
 // libs
@@ -15,24 +16,26 @@
 
 static constexpr float minExecutionTime = 16;
 
-ECS::Entity pushEntity(ECS::Coordinator &coordinator, glm::vec2 pos, std::vector<components::Transform*>& transforms){
-		ECS::Entity entity = coordinator.CreateEntity();
+ECS::Entity pushEntity(ECS::Coordinator &coordinator, glm::vec2 pos, std::vector<components::Transform*>& transforms, float mass = 2.f){
+	ECS::Entity entity = coordinator.CreateEntity();
 
-		physics2D::rigidBody::RigidBody b;
-		b.setMass(2.f);
-		b.setTransform(pos);
+	physics2D::rigidBody::RigidBody b;
+	b.setMass(mass);
+	b.setCor(0.5f);
+	b.setTransform(pos);
 
-		coordinator.AddComponent<components::Transform>(entity);
-		coordinator.AddComponent<physics2D::rigidBody::RigidBody>(entity, b);
+	coordinator.AddComponent<components::Transform>(entity);
+	coordinator.AddComponent<physics2D::rigidBody::RigidBody>(entity, b);
 
-		std::shared_ptr<physics2D::primitives::Circle> collider = std::make_shared<physics2D::primitives::Circle>();
-		collider->setRadius(30);
-		collider->setRigidBody(&coordinator.GetComponent<physics2D::rigidBody::RigidBody>(entity));
-		coordinator.AddComponent<std::shared_ptr<physics2D::primitives::Collider2D>>(entity, collider);
+	std::shared_ptr<physics2D::primitives::Circle> collider = std::make_shared<physics2D::primitives::Circle>();
+	collider->setRadius(30.f);
+	collider->setRigidBody(&coordinator.GetComponent<physics2D::rigidBody::RigidBody>(entity));
 
-		transforms.push_back(&coordinator.GetComponent<components::Transform>(entity));
-		return entity;
-	};
+	coordinator.AddComponent<std::shared_ptr<physics2D::primitives::Collider2D>>(entity, collider);
+
+	transforms.push_back(&coordinator.GetComponent<components::Transform>(entity));
+	return entity;
+}
 
 int main(int argc, char **argv){
 	std::cout << "version : " << VERSION << std::endl;
@@ -121,6 +124,7 @@ int main(int argc, char **argv){
 
 		for (auto &t : transforms){
 			circleRGBA(renderer, t->getPosition().x, t->getPosition().y, 30, 255, 0, 0, 255);
+			lineRGBA(renderer, t->getPosition().x, t->getPosition().y, t->getPosition().x + glm::cos(glm::radians(t->getRotation())) * 30.f, t->getPosition().y + glm::sin(glm::radians(t->getRotation())) * 30.f, 0, 255, 0, 255);
 		}
 
 		SDL_RenderPresent(renderer);
@@ -138,4 +142,4 @@ int main(int argc, char **argv){
 	SDL_Quit();
 
 	return EXIT_SUCCESS;
-}
+} 
