@@ -9,13 +9,14 @@
 #include <glm/glm.hpp>
 
 #include "physics2D/rigidBody/RigidBody.hpp"
+#include "physics2D/primitives/Collider2D.hpp"
 
 namespace physics2D::primitives{
-	class AABB{
+	class AABB : public Collider2D{
 		public:
-			AABB(){}
+			AABB() : Collider2D(){}
 
-			AABB(glm::vec2 min, glm::vec2 max){
+			AABB(glm::vec2 min, glm::vec2 max) : Collider2D(){
 				if (glm::dot(min, min) > glm::dot(max, max)) std::swap(min, max);
 
 				size = max - min;

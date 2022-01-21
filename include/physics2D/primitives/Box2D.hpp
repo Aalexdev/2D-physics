@@ -10,13 +10,14 @@
 
 #include "physics2D/rigidBody/RigidBody.hpp"
 #include "physics2D/util/math.hpp"
+#include "physics2D/primitives/Collider2D.hpp"
 
 namespace physics2D::primitives{
-	class Box2D{
+	class Box2D : public Collider2D{
 		public:
-			Box2D(){}
+			Box2D() : Collider2D(){}
 
-			Box2D(glm::vec2 min, glm::vec2 max){
+			Box2D(glm::vec2 min, glm::vec2 max) : Collider2D(){
 				if (glm::dot(min, min) > glm::dot(max, max)) std::swap(min, max);
 
 				size = max - min;

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "physics2D/rigidBody/RigidBody.hpp"
+#include "physics2D/primitives/Collider2D.hpp"
 
 namespace physics2D::primitives{
-	class Circle{
+	class Circle : public Collider2D{
 		public:
-			Circle() : radius{1} {}
-			Circle(float radius) : radius{radius} {}
+			Circle() : radius{1}, Collider2D() {}
+			Circle(float radius) : radius{radius}, Collider2D() {}
 
 			/**
 			 * @brief set the radius of the circle

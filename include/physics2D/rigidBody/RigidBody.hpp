@@ -41,16 +41,32 @@ namespace physics2D::rigidBody{
 				this->rotation = rotation;
 			}
 			
+			/**
+			 * @brief set the transform position
+			 * @param position 
+			 */
 			void setTransform(glm::vec2 position){
 				this->position = position;
 			}
 
+			/**
+			 * @brief set the transform rotation
+			 * @param rotation 
+			 */
 			void setTransform(float rotation){
 				this->rotation = rotation;
 			}
 
+			/**
+			 * @brief get the mass of the body (in Kg)
+			 * @return float 
+			 */
 			float getMass() const noexcept {return mass;}
 
+			/**
+			 * @brief set the mass of the body (in Kg)
+			 * @param mass 
+			 */
 			void setMass(float mass) {
 				this->mass = mass;
 
@@ -59,6 +75,10 @@ namespace physics2D::rigidBody{
 				}
 			}
 
+			/**
+			 * @brief update the body
+			 * @param dt the delta time in secondes
+			 */
 			void physicsUpdate(float dt){
 				if (mass == 0.f) return;
 
@@ -71,6 +91,9 @@ namespace physics2D::rigidBody{
 				forces = glm::vec2(0.f);
 			}
 
+			/**
+			 * @brief syncronise the transform component (if set)
+			 */
 			void syncCollisionsTransforms(){
 				if (transform){
 					transform->setPosition(position);
@@ -78,18 +101,72 @@ namespace physics2D::rigidBody{
 				}
 			}
 
+			/**
+			 * @brief set the transform component
+			 * @param t 
+			 */
 			void setTransform(components::Transform *t){
 				transform = t;
 			}
 
+			/**
+			 * @brief apply a force onto the body
+			 * @param force 
+			 */
 			void addForce(glm::vec2 force){
 				forces += force;
 			}
 
+			/**
+			 * @brief get if the baody has an infinit mass
+			 * 
+			 * @return true 
+			 * @return false 
+			 */
 			bool hasInfinitMass() const noexcept {return mass == 0.f;}
 
+			/**
+			 * @brief set the body collider
+			 * @param collider 
+			 */
 			void setCollider(primitives::Collider2D *collider) {this->collider = collider;}
+
+			/**
+			 * @brief get the body collider
+			 * 
+			 * @return primitives::Collider2D* 
+			 */
 			primitives::Collider2D *getCollider() const noexcept {return collider;}
+
+			/**
+			 * @brief get 1 over the mass (1.0 / masss)
+			 * @return float 
+			 */
+			float getInvertMass() const noexcept {return invertMass;}
+
+			/**
+			 * @brief get the velocity of the object
+			 * @return glm::vec2 
+			 */
+			glm::vec2 getVelocity() const noexcept {return linearVelocity;}
+
+			/**
+			 * @brief set the velocity of the body
+			 * @param newVelocity 
+			 */
+			void setVelocity(glm::vec2 newVelocity) noexcept {linearVelocity = newVelocity;}
+
+			/**
+			 * @brief get the coeffitient of restitution
+			 * @return float 
+			 */
+			float cor() const noexcept {return coeffitientOfRestitution;}
+
+			/**
+			 * @brief set the coeffitient of restitution
+			 * @param coef 
+			 */
+			void setCor(float coef) noexcept {coeffitientOfRestitution = coef;}
 
 		private:
 			glm::vec2 position = glm::vec2(0.f);
@@ -102,6 +179,7 @@ namespace physics2D::rigidBody{
 			float rotation = 0.f;
 			float mass = 0.f;
 			float invertMass = 0.f;
+			float coeffitientOfRestitution = 1.f;
 
 			bool fixedRotation = false;
 			components::Transform *transform = nullptr;

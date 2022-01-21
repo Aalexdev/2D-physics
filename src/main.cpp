@@ -15,9 +15,24 @@
 
 static constexpr float minExecutionTime = 16;
 
-void function(){
+ECS::Entity pushEntity(ECS::Coordinator &coordinator, glm::vec2 pos, std::vector<components::Transform*>& transforms){
+		ECS::Entity entity = coordinator.CreateEntity();
 
-}
+		physics2D::rigidBody::RigidBody b;
+		b.setMass(2.f);
+		b.setTransform(pos);
+
+		coordinator.AddComponent<components::Transform>(entity);
+		coordinator.AddComponent<physics2D::rigidBody::RigidBody>(entity, b);
+
+		std::shared_ptr<physics2D::primitives::Circle> collider = std::make_shared<physics2D::primitives::Circle>();
+		collider->setRadius(30);
+		collider->setRigidBody(&coordinator.GetComponent<physics2D::rigidBody::RigidBody>(entity));
+		coordinator.AddComponent<std::shared_ptr<physics2D::primitives::Collider2D>>(entity, collider);
+
+		transforms.push_back(&coordinator.GetComponent<components::Transform>(entity));
+		return entity;
+	};
 
 int main(int argc, char **argv){
 	std::cout << "version : " << VERSION << std::endl;
@@ -52,12 +67,13 @@ int main(int argc, char **argv){
 	ECS::Coordinator coordinator;
 	coordinator.RegisterComponent<components::Transform>();
 	coordinator.RegisterComponent<physics2D::rigidBody::RigidBody>();
-	coordinator.RegisterComponent<physics2D::primitives::Collider2D>();
+	coordinator.RegisterComponent<std::shared_ptr<physics2D::primitives::Collider2D>>();
 
 	auto physicsSystem = coordinator.RegisterSystem<physics2D::PhysicsSystem>(0.16, coordinator);
 	ECS::Signature signature;
 	signature.set(coordinator.GetComponentType<components::Transform>());
 	signature.set(coordinator.GetComponentType<physics2D::rigidBody::RigidBody>());
+	signature.set(coordinator.GetComponentType<std::shared_ptr<physics2D::primitives::Collider2D>>());
 	coordinator.SetSystemSignature<physics2D::PhysicsSystem>(signature);
 	
 	std::vector<components::Transform*> transforms;
@@ -77,30 +93,23 @@ int main(int argc, char **argv){
 			switch (e.type){
 				case SDL_QUIT:
 					launched = false;
-					break;
 				
 				case SDL_MOUSEBUTTONDOWN:
+					
+
 					switch (e.button.button){
+
 						case SDL_BUTTON_LEFT:
-							ECS::Entity e = coordinator.CreateEntity();
-
-							physics2D::rigidBody::RigidBody b;
-							b.setMass(2.f);
-							b.setTransform(mousePos);
-
-							coordinator.AddComponent<components::Transform>(e);
-							coordinator.AddComponent<physics2D::rigidBody::RigidBody>(e, b);
-							transforms.push_back(&coordinator.GetComponent<components::Transform>(e));
-							physicsSystem->addEntity(e);
+							physicsSystem->addEntity(pushEntity(coordinator, mousePos, transforms), true);
+							break;
+						
+						case SDL_BUTTON_RIGHT:
+							physicsSystem->addEntity(pushEntity(coordinator, mousePos, transforms), false);
 							break;
 					}
-					break;
 				
 				case SDL_MOUSEMOTION:
 					mousePos = glm::vec2(e.motion.x, e.motion.y);
-				
-				default:
-					break;
 			}
 		}
 
